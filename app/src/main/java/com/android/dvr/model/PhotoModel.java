@@ -5,6 +5,8 @@ import android.hardware.Camera;
 import com.android.dvr.constant.ConfigHelper;
 import com.android.dvr.contract.RecordContract;
 import com.android.dvr.mvp.IModel;
+import com.android.dvr.util.ImageUtils;
+import com.android.dvr.util.LogUtils;
 import com.android.dvr.view.FloatWindow;
 
 import java.io.File;
@@ -23,35 +25,36 @@ import java.util.concurrent.Executors;
 public class PhotoModel implements RecordContract.PhotoModel, IModel {
     private boolean mIsCapture;
     private File    mImageFile;
-    private Camera  mCamera;
 
     private ExecutorService mExecutorService;
 
     public PhotoModel() {
-        mCamera = FloatWindow.getInstance().getCamera();
-        mExecutorService = Executors.newCachedThreadPool();
+        mExecutorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
     public void takePicture() {
-        mExecutorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                initOutputFile();
-                try {
-                    mCamera.reconnect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        initOutputFile();
+        Camera camera = FloatWindow.getInstance().getCamera();
+        try {
+            camera.reconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                Camera.Parameters params = mCamera.getParameters();
-                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                params.setPictureSize(1920, 1080);
-                mCamera.setParameters(params);
-                mCamera.takePicture(null, null, mPictureCallback);
-            }
-        });
+        Camera.Parameters params = camera.getParameters();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        params.setPictureSize(1920, 1080);
+        camera.setParameters(params);
+        camera.takePicture(mShutterCallback, null, mPictureCallback);
     }
+
+    Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+        @Override
+        public void onShutter() {
+            LogUtils.e("PhotoModel", "onShutter");
+        }
+    };
 
     Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
         @Override
@@ -61,11 +64,11 @@ public class PhotoModel implements RecordContract.PhotoModel, IModel {
                 fos = new FileOutputStream(mImageFile);
                 fos.write(data);
                 fos.flush();
-                fos.close();
+                ImageUtils.addImage(mImageFile);
                 if (!FloatWindow.getInstance().getIsRecord()) {
-                    mCamera.stopPreview();
+                    camera.stopPreview();
                 }
-                mCamera.startPreview();
+                camera.startPreview();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

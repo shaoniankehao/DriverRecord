@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.android.dvr.ProApplication;
@@ -58,7 +59,7 @@ public class FloatWindow implements SurfaceHolder.Callback, OnHitListener, View.
 
     private SurfaceView    mSurfaceView;
     private Chronometer    chr_time;
-    private RelativeLayout mRlButton;
+    private LinearLayout   mRlButton;
     private RelativeLayout rl_line;
     private CheckBox       cb_voice;
     private CheckBox       cb_record;
@@ -95,13 +96,13 @@ public class FloatWindow implements SurfaceHolder.Callback, OnHitListener, View.
         mRootView = LayoutInflater.from(ProApplication.getContext()).inflate(R.layout.floatwindow, null);
         mSurfaceView = (SurfaceView) mRootView.findViewById(R.id.surface_view);
         mSurfaceView.getHolder().addCallback(this);
-        mRlButton = (RelativeLayout) mRootView.findViewById(R.id.rl_button);
+        mRlButton = (LinearLayout) mRootView.findViewById(R.id.rl_button);
         chr_time = (Chronometer) mRootView.findViewById(R.id.chr_time);
         rl_line = (RelativeLayout) mRootView.findViewById(R.id.rl_line);
         mRootView.findViewById(R.id.iv_picture).setOnClickListener(this);
         mRootView.findViewById(R.id.iv_file).setOnClickListener(this);
         cb_voice = ((CheckBox) mRootView.findViewById(R.id.cb_voice));
-        cb_voice.setChecked((Boolean) SpUtils.get("IsRecordVoice", false));
+        cb_voice.setChecked((Boolean) SpUtils.get("IsRecordVoice", true));
         cb_voice.setOnCheckedChangeListener(this);
         cb_record = ((CheckBox) mRootView.findViewById(R.id.cb_record));
         cb_record.setOnCheckedChangeListener(this);
@@ -195,8 +196,10 @@ public class FloatWindow implements SurfaceHolder.Callback, OnHitListener, View.
         if (cameraId == 0) {
             rl_line.setVisibility(View.GONE);
             mRlButton.setVisibility(View.VISIBLE);
+            chr_time.setVisibility(View.VISIBLE);
         } else if (cameraId == 1) {
             mRlButton.setVisibility(View.GONE);
+            chr_time.setVisibility(View.GONE);
             rl_line.setVisibility(View.VISIBLE);
         }
     }

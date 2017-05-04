@@ -35,7 +35,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.RecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="landscape">
             <intent-filter>

@@ -1,8 +1,8 @@
 package com.android.dvr.constant;
 
-import com.android.dvr.model.PhotoFragmentModel;
+import com.android.dvr.model.PhotoDataModel;
 import com.android.dvr.model.PhotoModel;
-import com.android.dvr.model.VideoFragmentModel;
+import com.android.dvr.model.VideoDataModel;
 import com.android.dvr.model.VideoModel;
 
 /**
@@ -14,7 +14,7 @@ public interface ModelHelper {
 
     String PHOTO = PhotoModel.class.getSimpleName();
 
-    String PHOTOFRAGMENT = PhotoFragmentModel.class.getSimpleName();
+    String PHOTOFRAGMENT = PhotoDataModel.class.getSimpleName();
 
-    String VIDEOFRAGMENT = VideoFragmentModel.class.getSimpleName();
+    String VIDEOFRAGMENT = VideoDataModel.class.getSimpleName();
 }

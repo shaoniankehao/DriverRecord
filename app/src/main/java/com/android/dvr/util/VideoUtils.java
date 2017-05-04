@@ -8,11 +8,9 @@ import android.net.Uri;
 import android.provider.MediaStore.Video;
 
 import com.android.dvr.ProApplication;
-import com.android.dvr.bean.VideoBean;
 import com.android.dvr.constant.ConfigHelper;
 
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Created by duanpeifeng on 2017/3/14 0014.
@@ -20,9 +18,6 @@ import java.util.ArrayList;
 
 public class VideoUtils {
     private static final Uri STORAGE_URI = Video.Media.EXTERNAL_CONTENT_URI;
-
-    private static final String WHERE = Video.Media.DATA + " like '" +
-            ConfigHelper.SAVE_RECORD_PATH + "%";
 
     private static final String WHERE_OLDEST = Video.Media.DATA + " like '" +
             ConfigHelper.SAVE_RECORD_PATH + "%";
@@ -53,30 +48,6 @@ public class VideoUtils {
         LogUtils.e("VideoInfo", "canDelete：" + canDelete);
 
         return contentResolver.insert(STORAGE_URI, values);
-    }
-
-    /**
-     * 获取循环目录下的视频
-     *
-     * @param tagCanDelete 按此标志位获取对应的视频集合
-     */
-    public static ArrayList<VideoBean> quearyLoopVideo(boolean tagCanDelete) {
-        ArrayList<VideoBean> list = new ArrayList<VideoBean>();
-        Cursor cursor = contentResolver.query(STORAGE_URI, COLUMNS, WHERE, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                long id = cursor.getLong(cursor.getColumnIndexOrThrow(Video.Media._ID));
-                Uri uri = ContentUris.withAppendedId(STORAGE_URI, id);
-                String tags = cursor.getString(cursor.getColumnIndexOrThrow(Video.Media.TAGS));
-                boolean canDelete = tags != null && tags.equals("true");
-                String videoName = cursor.getString(cursor.getColumnIndexOrThrow(Video.Media.DISPLAY_NAME));
-                if (canDelete == tagCanDelete) {
-                    //list.add(new VideoBean(uri, canDelete, videoName));
-                }
-            }
-            while (cursor.moveToNext());
-        }
-        return list;
     }
 
     private static void deleteVideoFile(String fileName) {

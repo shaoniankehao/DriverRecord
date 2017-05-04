@@ -42,7 +42,6 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
     private ExecutorService mExecutorService;
     private Runnable        mCleanDataRunnable;
     private Runnable        mRecordVideoRunnable;
-    private TimerTask       mTimerTask;
 
     public VideoModel() {
         mCamera = FloatWindow.getInstance().getCamera();
@@ -52,7 +51,7 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
 
     private void initThreadTask() {
         mRecordTimer = new Timer();
-        mExecutorService = Executors.newCachedThreadPool();
+        mExecutorService = Executors.newSingleThreadExecutor();
 
         mCleanDataRunnable = new Runnable() {
             @Override
@@ -83,13 +82,6 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
                 }
             }
         };
-
-        mTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                stopRecord();
-            }
-        };
     }
 
     private void initMediaRecord() {
@@ -101,11 +93,14 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
         int videoBitRate = videoProfiles[videoQuality][7];
         if (FloatWindow.getInstance().getIsRecordVoice()) {
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             mMediaRecorder.setAudioEncodingBitRate(audioBitRate);
         }
+
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        if (FloatWindow.getInstance().getIsRecordVoice()) {
+            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        }
         mMediaRecorder.setVideoFrameRate(20);
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setVideoEncodingBitRate(videoBitRate);
@@ -131,17 +126,30 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
         } else {
             delayTime = ConfigHelper.RECORD_DURATION;
         }
-        mRecordTimer.schedule(mTimerTask, delayTime);
+        if (mRecordTimer == null) {
+            mRecordTimer = new Timer();
+        }
+        mRecordTimer.schedule(new TimerThread(), delayTime);
+    }
+
+    private class TimerThread extends TimerTask {
+        @Override
+        public void run() {
+            stopRecord();
+        }
     }
 
     @Override
-    public void stopRecord() {
-        mMediaRecorder.stop();
-        mMediaRecorder.reset();
-        mMediaRecorder.release();
-        mMediaRecorder = null;
-        mCamera.lock();
-        mTimerTask.cancel();
+    public synchronized void stopRecord() {
+        if (mMediaRecorder != null) {
+            mMediaRecorder.stop();
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+            mCamera.lock();
+            mRecordTimer.cancel();
+            mRecordTimer = null;
+        }
 
         mLoopDuration = System.currentTimeMillis() - mLoopDuration;
         mExecutorService.execute(new Runnable() {
@@ -192,6 +200,7 @@ public class VideoModel implements RecordContract.VideoModel, IModel {
         if (mCanDelete) {
             moveFile(mVideoFile.getAbsolutePath(), mProtectedVideoFile.getAbsolutePath());
         }
+        VideoUtils.addVideo(mLoopDuration, mVideoFile, mCanDelete);
     }
 
     private boolean moveFile(String srcFileName, String destDirName) {

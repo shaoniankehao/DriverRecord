@@ -4,21 +4,59 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-    <com.viewpagerindicator.TabPageIndicator
-        android:id="@+id/indicator"
+    <RelativeLayout
+        android:id="@+id/rl_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="55dp">
+        <com.viewpagerindicator.TabPageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-    <android.support.v4.view.ViewPager
+        <RelativeLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/activity_margin"
+                android:src="@mipmap/title_return"/>
+            <ImageView
+                android:id="@+id/iv_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/activity_margin"
+                android:src="@mipmap/title_delete"/>
+            <CheckBox
+                android:id="@+id/cb_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/activity_margin"
+                android:layout_toLeftOf="@id/iv_delete"
+                android:text="全选"
+                android:button="@null"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="20sp"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <com.android.dvr.view.NoScrollViewPager
         android:id="@+id/vp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/indicator"/>
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_title"/>
 
     <ImageView
         android:id="@+id/iv"
-        android:scaleType="fitXY"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="fitXY"
         android:visibility="gone"/>
 </RelativeLayout>

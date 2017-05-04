@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import com.android.dvr.mvp.IView;
 
+import org.greenrobot.eventbus.EventBus;
+
 
 /**
  * @创建者 duanp
@@ -24,6 +26,7 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(getRelayoutId(), null);
+        EventBus.getDefault().register(this);
         return rootView;
     }
 
@@ -47,6 +50,7 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
     @Override
     public void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (mPresenter != null) {
             mPresenter.detachView();
         }

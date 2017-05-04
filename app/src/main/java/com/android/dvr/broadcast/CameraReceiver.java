@@ -16,6 +16,8 @@ import com.android.dvr.view.FloatWindow;
 
 public class CameraReceiver extends BroadcastReceiver {
     private static PowerManager.WakeLock mWakeLock;
+    private static boolean               mIsRecord;
+    private static boolean               mIsHide;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,10 +33,12 @@ public class CameraReceiver extends BroadcastReceiver {
                     mWakeLock.acquire();
                 }
                 if (FloatWindow.getInstance().getIsRecord()) {
+                    mIsRecord = true;
                     FloatWindow.getInstance().setRecord(false);
                 }
                 FloatWindow.getInstance().switchCamera(FloatWindow.CAMERA_REAR);
                 if (FloatWindow.getInstance().getIsHide()) {
+                    mIsHide = true;
                     FloatWindow.getInstance().startPreviewByType(FloatWindow.TYPE_FILL);
                 }
             }
@@ -46,11 +50,14 @@ public class CameraReceiver extends BroadcastReceiver {
                     mWakeLock.release();
                     mWakeLock = null;
                 }
-                if (!FloatWindow.getInstance().getIsHide()) {
+                FloatWindow.getInstance().switchCamera(FloatWindow.CAMERA_FRONT);
+                if (mIsHide) {
                     FloatWindow.getInstance().startPreviewByType(FloatWindow.TYPE_HIDE);
                 }
-                FloatWindow.getInstance().switchCamera(FloatWindow.CAMERA_FRONT);
-                FloatWindow.getInstance().setRecord(true);
+                if (mIsRecord) {
+                    mIsRecord = false;
+                    FloatWindow.getInstance().setRecord(true);
+                }
             }
         }
     }

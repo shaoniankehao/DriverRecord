@@ -62,7 +62,7 @@ public class RecordService extends Service implements IView {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void requestWeatherEvent(String event) {
+    public void requestRecordEvent(String event) {
         LogUtils.e(getClass(), event);
         switch (event) {
             case RecordHelper.START_RECORD:
